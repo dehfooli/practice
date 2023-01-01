@@ -1,10 +1,12 @@
 import qrcode
+
 PRODUCTS = []
 
 def read_from_database():
     f = open("database.txt","r")
 
     for line in f:
+        line = line.replace('\n','')
         result= line.split(",")
         my_dict={"code":result[0],"name":result[1],"price":result[2],"count":result[3]}
         PRODUCTS.append(my_dict)
@@ -19,15 +21,26 @@ def write_to_database():
         new_file.write(str(product["code"])+","+str(product['name'])+','+str(product['price'])+','+str(product['count'])+'\n')
     new_file.close()
 
+def Factor(Product_list,i):
+    sum = 0
+    j = 1
+    print("_____________ Factor _____________")
+    for product in Product_list:
+        print(j , "- " , product["name"],"     ",product["price"],"    ",product["count"])
+        sum += (product["count"] * product["price"])
+        j+=1
+    print("Sum = ",sum)
+
 
 def show_menu():
     print("1- add")
     print("2- Edit")
     print("3- Remove")
-    print("4- Search")
-    print("5- Show_List")
-    print("6- Buy")
-    print("7- Exit")
+    print("4- qrcodestore")
+    print("5- Search")
+    print("6- Show_List")
+    print("7- Buy")
+    print("8- Exit")
 
 def add():
     code = input("enter code: ")
@@ -38,10 +51,10 @@ def add():
     PRODUCTS.append(new_product)
 
 def Edit():
-    code = input("enter code: ")
+    Show_List()
+    code = input("Which code do you want to edit? please enter code: ")
     for product in PRODUCTS:
         if product['code']==code:
-            print("Which feild do you want to edit? ")
             print("1- name:\n2- price:\n3- count: " )
             choice = int (input("enter your choice: "))
             if choice ==1:
@@ -55,6 +68,7 @@ def Edit():
             elif choice == 3:
                 new_count= int(input("please enter new count: "))
                 product["count"]=new_count
+                print("Information has been updated successfully")
             
             break
     else:
@@ -62,7 +76,36 @@ def Edit():
 
 
 def Remove():
-    ...
+    Show_List()
+    remove = input("Which code do you want to remove? please enter code: ")
+    for product in PRODUCTS:
+            if product['code']==remove:
+                print("Do you sure? \n 1-yes\t\t2-No")
+                choice = int (input("enter your choice: "))
+                if choice==1:
+                   write_to_database()
+                elif choice==2:
+                    break
+                print("Information has been deleted successfully")
+    else:
+            print("This code not valid")
+
+def qrcodestore():
+    Show_List()
+    user_input = input("Which code do you want to have it's QRCODE? please enter code: ")
+    for product in PRODUCTS:
+        if product["code"] == user_input:
+            qr = qrcode.QRCode(version = 1,box_size = 10,border = 5)
+            qr.make(product)
+            qr.make(fit = True)
+            img = qr.make_image(fill_color = 'red',back_color = 'white')
+            img.save("product.png")
+            print("QRCODE generated")
+            break
+                    
+    else:
+        print("This code not valid")
+
 def Search():
     user_input=input("type your keyword: ")
     for product in PRODUCTS:
@@ -74,15 +117,40 @@ def Search():
         
 
 def Show_List():
-    print("code\t\tname\t\tprice")
+    print("code\t\tname\t\tprice\t\tcount")
     for product in PRODUCTS:
-        print(product["code"], "\t\t", product["name"], "\t\t", product["price"])
+        print(product["code"], "\t\t", product["name"], "\t\t", product["price"],"\t\t", product["count"])
 
 def Buy():
-    ...
-
-
-
+    i = 0
+    PurchaseAmount= 0
+    Product_list= []
+    user_input = input("Which code do you want to buy ? please enter code: ")
+    for product in PRODUCTS:
+        while True:
+            if product["code"] == user_input:
+                print("How many do you need to buy?")
+                choice =int(input("please enter the count? "))
+                if choice > int(product['count']):
+                    print("sorry! This Product not enough in shop. The available  number of this item is",end=" ")
+                    print(product['count'])
+                    new_choice = input("Do you want to continue??? (y/n) -> ")
+                    if new_choice == 'Y' or new_choice == 'y':
+                        continue
+                    else:
+                        return
+                else:
+                    choice < int(product['count'])
+                    product['count'] = int(product['count']) - choice
+                    PurchaseAmount = (choice * int(product['price']))
+                    i+=1
+                    Factor_dict = {"name":product['name'],"price":PurchaseAmount,"count":choice}
+                    str(product['count'])
+                    str(product['price'])
+                    Product_list.append(Factor_dict)
+                    break
+    else:
+        print("This Code is Not valid!")
 print("Welcome to Gashtook Store")
 print("Loding...")
 read_from_database()
@@ -100,15 +168,15 @@ while True:
     elif choice ==3:
         Remove()
     elif choice ==4:
-        Search()
+        qrcodestore()
     elif choice ==5:
-        Show_List()
+        Search()
     elif choice ==6:
-        Buy()
+        Show_List()
     elif choice ==7:
+        Buy()
+    elif choice ==8:
         write_to_database()
         exit(0)
     else:
         print("Please enter corect number.")
-
-    
