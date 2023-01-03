@@ -95,9 +95,9 @@ def qrcodestore():
     user_input = input("Which code do you want to have it's QRCODE? please enter code: ")
     for product in PRODUCTS:
         if product["code"] == user_input:
-            qr = qrcode.QRCode(version = 1,box_size = 10,border = 5)
-            qr.make(product)
-            qr.make(fit = True)
+            qr = qrcode.QRCode(version = 12,error_correction=qrcode.constants.ERROR_CORRECT_H,box_size = 2,border = 8)
+            qr.add_data(product)
+            qr.make()
             img = qr.make_image(fill_color = 'red',back_color = 'white')
             img.save("product.png")
             print("QRCODE generated")
@@ -145,12 +145,12 @@ def Buy():
                     PurchaseAmount = (choice * int(product['price']))
                     i+=1
                     Factor_dict = {"name":product['name'],"price":PurchaseAmount,"count":choice}
-                    str(product['count'])
-                    str(product['price'])
+                    print(Factor_dict)
                     Product_list.append(Factor_dict)
                     break
     else:
         print("This Code is Not valid!")
+
 print("Welcome to Gashtook Store")
 print("Loding...")
 read_from_database()
